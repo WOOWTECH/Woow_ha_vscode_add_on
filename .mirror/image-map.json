@@ -1,0 +1,20 @@
+{
+  "upstream_url": "https://github.com/hassio-addons/repository",
+  "upstream_branch": "master",
+  "mirror_image_prefix": "ghcr.io/woowtech/ha-mirror-",
+  "addons": [
+    {
+      "dir": "vscode",
+      "slug": "vscode",
+      "name": "Studio Code Server",
+      "upstream_image": "ghcr.io/hassio-addons/vscode/{arch}",
+      "new_image": "ghcr.io/woowtech/ha-mirror-ghcr-io-hassio-addons-vscode-{arch}",
+      "version": "7.1.0",
+      "arches": [
+        "aarch64",
+        "amd64"
+      ],
+      "already_patched": false
+    }
+  ]
+}
