@@ -46,4 +46,4 @@ schema:
   - str
   init_commands:
   - str
-image: ghcr.io/hassio-addons/vscode/{arch}
+image: ghcr.io/woowtech/ha-mirror-ghcr-io-hassio-addons-vscode-{arch}

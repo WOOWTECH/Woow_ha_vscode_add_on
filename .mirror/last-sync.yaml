@@ -1,0 +1,6 @@
+last_sync: 2026-09-15T08:40:31Z
+upstream_url: https://github.com/hassio-addons/repository
+upstream_branch: master
+upstream_commit: 5cc2060ada6d169579cff849a524a3b9f01aa6ae
+mirror_image_prefix: ghcr.io/woowtech/ha-mirror-
+keep_subdirs: vscode LICENSE.md
