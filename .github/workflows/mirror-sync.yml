@@ -1,8 +1,15 @@
 name: mirror-sync
 
 # Nightly git sync: pulls latest from upstream, updates the `upstream` branch
-# (pure mirror), then rebuilds `main` (patched) with our overlay files and
-# the image: field rewrites applied on top.
+# (pure mirror), then rebuilds `main`'s tree (patched) with our overlay files
+# and the image: field rewrites applied on top.
+#
+# Nothing here force-pushes a branch. `main`'s new tree is committed on top of
+# the current `main`, so commits made directly on `main` (overlay changes such
+# as .github) stay in its history. Rebuilding `main` from upstream and
+# force-pushing it used to orphan them on every upstream change. `upstream`
+# only fast-forwards; if upstream ever rewrites its history the push fails
+# loudly instead of silently replacing the mirror.
 #
 # Differs from the Music Assistant / Matter Hub mirrors in one way: those
 # upstreams are single-product store repos, so `main` can be the whole tree.
@@ -61,17 +68,19 @@ jobs:
 
       - name: Update `upstream` mirror branch
         run: |
-          git branch -f upstream "upstream/$UPSTREAM_BRANCH"
-          git push origin upstream --force
+          git push origin "upstream/$UPSTREAM_BRANCH:refs/heads/upstream"
 
       - name: Push upstream tags
         run: |
           git push origin --tags --force
 
-      - name: Rebuild main = upstream + prune + overlay + image patches
+      - name: Rebuild main's tree = upstream + prune + overlay + image patches
         run: |
           set -e
-          git checkout -B main "upstream/$UPSTREAM_BRANCH"
+          # Replace main's tree with upstream's, keeping main's history.
+          git rm -r -q -- .
+          git clean -f -d -x -q
+          git checkout "upstream/$UPSTREAM_BRANCH" -- .
 
           # Prune to the add-on(s) we republish. Everything else in the
           # upstream tree is dropped from `main` only; `upstream` keeps it all.
@@ -111,7 +120,7 @@ jobs:
             echo "keep_subdirs: $KEEP_SUBDIRS"
           } > .mirror/last-sync.yaml
 
-      - name: Commit & force-push main
+      - name: Commit & push main
         run: |
           git config user.email "woowtech-mirror-bot@designsmart.com.tw"
           git config user.name  "WOOWTECH Mirror Bot"
@@ -121,4 +130,6 @@ jobs:
           else
             git commit -m "[bot] mirror sync $(date -u +%Y-%m-%d) — ${UPSTREAM_URL##*/}@${UPSTREAM_BRANCH}"
           fi
-          git push origin main --force
+          # A normal push: a commit pushed to main while this ran is kept, and
+          # this run fails instead of discarding it.
+          git push origin main

@@ -18,8 +18,8 @@ files or the automation will break.
 ## `KEEP_SUBDIRS` — why this mirror prunes
 
 Upstream (`hassio-addons/repository`) publishes more add-ons than we
-republish. `mirror-sync` therefore rebuilds `main` from upstream and then
-drops every top-level path not listed in `KEEP_SUBDIRS`:
+republish. `mirror-sync` therefore rebuilds `main`'s tree from upstream and
+then drops every top-level path not listed in `KEEP_SUBDIRS`:
 
 ```
 KEEP_SUBDIRS="vscode LICENSE.md"
@@ -30,6 +30,9 @@ The `upstream` branch is a **complete, unpruned** mirror of
 republish another add-on, add its directory to `KEEP_SUBDIRS` and re-run the
 workflow. If a listed path disappears upstream (rename/removal), mirror-sync
 fails loudly instead of publishing an empty store.
+
+The rebuilt tree is committed on top of the current `main` and pushed
+without `--force`, so commits made directly on `main` stay in its history.
 
 The Music Assistant and Matter Hub mirrors do not set `KEEP_SUBDIRS`; their
 upstreams are single-product stores where the whole tree is wanted.
